@@ -5,5 +5,15 @@
   "repository": "https://github.com/dkoujelev/changelog-generator.git",
   "author": "dkoujelev <dkoujelev97@gmail.com>",
   "license": "MIT",
-  "private": true
+  "private": true,
+  "dependencies": {},
+  "scripts": {
+    "generate-changelog": "tsc && node build/index.js"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.18.0",
+    "@typescript-eslint/parser": "^4.18.0",
+    "eslint": "^7.22.0",
+    "typescript": "^4.2.3"
+  }
 }
