@@ -67,8 +67,9 @@ type GetMergedPullRequests = (config: Config) => Promise<PullRequest[]>;
 
 export const getMergedPullRequests: GetMergedPullRequests = async (config) => {
   let hasUnfetchedPullRequests = true;
-  const prResponses: PullRequestsResponse[] = [];
   let cursor: string | undefined;
+
+  const prResponses: PullRequestsResponse[] = [];
 
   while (hasUnfetchedPullRequests) {
     const prResponse = await fetchMergedPullRequests(config, cursor);

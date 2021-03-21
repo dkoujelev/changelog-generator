@@ -14,6 +14,18 @@ const toChangelogEntry = (pullRequest: PullRequest) => {
   return `- ${pullRequest.title}`;
 };
 
+const generateChangelogSection = (label: string, entries: string[]) => {
+  let section = '';
+
+  if (entries.length) {
+    section += `\n## ${label} \n`;
+    section += entries.join('\n');
+    section += '\n';
+  }
+
+  return section;
+};
+
 export const generateChangelog = (pullRequests: PullRequest[], version: string): string => {
   const newEntries = getChangelogEntriesFromPullRequest(pullRequests, 'new');
   const changedEntries = getChangelogEntriesFromPullRequest(pullRequests, 'changed');
@@ -26,25 +38,11 @@ export const generateChangelog = (pullRequests: PullRequest[], version: string):
   }
 
   const today = format(new Date(), 'yyyy-MM-dd');
-  let changelogString = `# ${version} (${today}) \n`;
+  let changelog = `# ${version} (${today}) \n`;
 
-  if (newEntries.length) {
-    changelogString += '\n## New \n';
-    changelogString += newEntries.join('\n');
-    changelogString += '\n';
-  }
+  changelog += generateChangelogSection('New', newEntries);
+  changelog += generateChangelogSection('Changed', changedEntries);
+  changelog += generateChangelogSection('Fixed', fixedEntries);
 
-  if (changedEntries.length) {
-    changelogString += '\n## Changed \n';
-    changelogString += changedEntries.join('\n');
-    changelogString += '\n';
-  }
-
-  if (fixedEntries.length) {
-    changelogString += '\n## Fixed \n';
-    changelogString += fixedEntries.join('\n');
-    changelogString += '\n';
-  }
-
-  return changelogString;
+  return changelog;
 };
