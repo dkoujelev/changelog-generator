@@ -1,6 +1,6 @@
 {
   "name": "changelog-generator",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "index.js",
   "repository": "https://github.com/dkoujelev/changelog-generator.git",
   "author": "dkoujelev <dkoujelev97@gmail.com>",
