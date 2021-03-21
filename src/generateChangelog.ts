@@ -19,29 +19,29 @@ export const generateChangelog = (pullRequests: PullRequest[], version: string):
   const changedEntries = getChangelogEntriesFromPullRequest(pullRequests, 'changed');
   const fixedEntries = getChangelogEntriesFromPullRequest(pullRequests, 'fixed');
 
-  if (!newEntries.length || changedEntries.length || fixedEntries.length) {
+  if (!newEntries.length && !changedEntries.length && !fixedEntries.length) {
     console.error('No changes found');
 
     return '';
   }
 
   const today = format(new Date(), 'yyyy-MM-dd');
-  let changelogString = `# ${version} (${today}) \n\n`;
+  let changelogString = `# ${version} (${today}) \n`;
 
   if (newEntries.length) {
-    changelogString += '## New \n';
+    changelogString += '\n## New \n';
     changelogString += newEntries.join('\n');
     changelogString += '\n';
   }
 
   if (changedEntries.length) {
-    changelogString += '## Changed \n';
+    changelogString += '\n## Changed \n';
     changelogString += changedEntries.join('\n');
     changelogString += '\n';
   }
 
   if (fixedEntries.length) {
-    changelogString += '## Fixed \n';
+    changelogString += '\n## Fixed \n';
     changelogString += fixedEntries.join('\n');
     changelogString += '\n';
   }
