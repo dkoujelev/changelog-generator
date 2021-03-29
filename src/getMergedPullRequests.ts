@@ -1,11 +1,8 @@
 import { graphql } from '@octokit/graphql';
-import { PullRequest } from './types';
+import { PullRequest, Config, ConfigRepo } from './types';
 
 type PullRequestsResponse = {
-  nodes: {
-    title: string;
-    labels: { nodes: { name: string }[] };
-  }[];
+  nodes: PullRequestResponseNode[];
 
   pageInfo: {
     hasNextPage: boolean;
@@ -13,19 +10,21 @@ type PullRequestsResponse = {
   };
 };
 
-type Config = {
-  accessToken: string;
-  repoOwner: string;
-  repoName: string;
-  versionLabel: string;
+type PullRequestResponseNode = {
+  title: string;
+  mergedAt: string;
+  labels: { nodes: { name: string }[] };
 };
 
-type FetchMergedPullRequests = (config: Config, cursor?: string) => Promise<PullRequestsResponse>;
+type FetchMergedPullRequests = (
+  githubAccessToken: string,
+  repo: ConfigRepo,
+  cursor?: string
+) => Promise<PullRequestsResponse>;
 
-const fetchMergedPullRequests: FetchMergedPullRequests = async (
-  { accessToken, repoName, repoOwner, versionLabel },
-  cursor
-) => {
+const fetchMergedPullRequests: FetchMergedPullRequests = async (githubAccessToken, repo, cursor) => {
+  const { owner, name, versionLabel } = repo;
+
   const after = cursor ? `, after: "${cursor}"` : '';
   const labels = `, labels: ["${versionLabel}"]`;
 
@@ -34,10 +33,11 @@ const fetchMergedPullRequests: FetchMergedPullRequests = async (
   } = await graphql(
     `
     {
-      repository(owner: "${repoOwner}", name: "${repoName}") {
+      repository(owner: "${owner}", name: "${name}") {
         pullRequests(first: 100, states: [MERGED] ${labels} ${after}) {
           nodes {
             title
+            mergedAt
             labels(first: 10) {
               nodes {
                 name
@@ -55,7 +55,7 @@ const fetchMergedPullRequests: FetchMergedPullRequests = async (
     `,
     {
       headers: {
-        authorization: `bearer ${accessToken}`,
+        authorization: `bearer ${githubAccessToken}`,
       },
     }
   );
@@ -63,16 +63,16 @@ const fetchMergedPullRequests: FetchMergedPullRequests = async (
   return pullRequests;
 };
 
-type GetMergedPullRequests = (config: Config) => Promise<PullRequest[]>;
+type GetMergedPullRequestsForRepo = (githubAccessToken: string, repo: ConfigRepo) => Promise<PullRequestResponseNode[]>;
 
-export const getMergedPullRequests: GetMergedPullRequests = async (config) => {
+const getMergedPullRequestsForRepo: GetMergedPullRequestsForRepo = async (githubAccessToken, repo) => {
   let hasUnfetchedPullRequests = true;
   let cursor: string | undefined;
 
   const prResponses: PullRequestsResponse[] = [];
 
   while (hasUnfetchedPullRequests) {
-    const prResponse = await fetchMergedPullRequests(config, cursor);
+    const prResponse = await fetchMergedPullRequests(githubAccessToken, repo, cursor);
     prResponses.push(prResponse);
 
     if (prResponse.pageInfo.hasNextPage) {
@@ -82,14 +82,37 @@ export const getMergedPullRequests: GetMergedPullRequests = async (config) => {
     }
   }
 
-  const pullRequests: PullRequest[] = prResponses.flatMap(({ nodes }) => {
-    return nodes.map(({ title, labels }) => {
+  return prResponses.flatMap(({ nodes }) => nodes);
+};
+
+type GetMergedPullRequests = (config: Config) => Promise<PullRequest[]>;
+
+export const getMergedPullRequests: GetMergedPullRequests = async (config) => {
+  const { githubAccessToken, repos } = config;
+
+  const fetchedPullRequests = await Promise.all(
+    repos.map((repo) => getMergedPullRequestsForRepo(githubAccessToken, repo))
+  );
+
+  const mergedPullRequests: PullRequest[] = fetchedPullRequests
+    .flatMap((pr) => pr)
+    .sort(byMergeDate)
+    .flatMap(({ title, labels }) => {
       return {
         title,
         labels: labels.nodes.map(({ name }) => name),
       };
     });
-  });
 
-  return pullRequests;
+  return mergedPullRequests.flatMap((pr) => pr);
+};
+
+const byMergeDate = (a: PullRequestResponseNode, b: PullRequestResponseNode) => {
+  if (a.mergedAt > b.mergedAt) {
+    return -1;
+  } else if (a.mergedAt < b.mergedAt) {
+    return 1;
+  }
+
+  return 0;
 };

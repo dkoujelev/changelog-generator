@@ -1,0 +1,30 @@
+{
+  "githubAccessToken": "",
+
+  "versionTitle": "",
+
+  "repos": [
+    {
+      "owner": "",
+      "name": "",
+      "versionLabel": ""
+    }
+  ],
+
+  "changelogSections": [
+    {
+      "title": "New",
+      "labels": ["new", "New", "enhancement", "Enhancement"]
+    },
+
+    {
+      "title": "Changed",
+      "labels": ["changed", "Changed"]
+    },
+
+    {
+      "title": "Fixed",
+      "labels": ["fixed", "Fixed"]
+    }
+  ]
+}

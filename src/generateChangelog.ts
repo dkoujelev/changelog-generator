@@ -1,12 +1,12 @@
-import { PullRequest } from './types';
+import { PullRequest, Config } from './types';
 import { format } from 'date-fns';
 
-const getChangelogEntriesFromPullRequest = (pullRequests: PullRequest[], label: string) => {
-  return pullRequests.filter(createLabelFilter(label)).map(toChangelogEntry);
+const getChangelogEntriesFromPullRequest = (pullRequests: PullRequest[], labels: string[]) => {
+  return pullRequests.filter(createLabelFilter(labels)).map(toChangelogEntry);
 };
 
-const createLabelFilter = (label: string) => ({ labels }: PullRequest) => {
-  return labels.includes(label);
+const createLabelFilter = (filterLabels: string[]) => ({ labels }: PullRequest) => {
+  return filterLabels.some((filterLabel) => labels.includes(filterLabel));
 };
 
 const toChangelogEntry = (pullRequest: PullRequest) => {
@@ -26,23 +26,27 @@ const generateChangelogSection = (label: string, entries: string[]) => {
   return section;
 };
 
-export const generateChangelog = (pullRequests: PullRequest[], version: string): string => {
-  const newEntries = getChangelogEntriesFromPullRequest(pullRequests, 'new');
-  const changedEntries = getChangelogEntriesFromPullRequest(pullRequests, 'changed');
-  const fixedEntries = getChangelogEntriesFromPullRequest(pullRequests, 'fixed');
-
-  if (!newEntries.length && !changedEntries.length && !fixedEntries.length) {
-    console.error('No changes found');
-
-    return '';
-  }
+export const generateChangelog = (config: Config, pullRequests: PullRequest[]): string => {
+  const { versionTitle, changelogSections } = config;
 
   const today = format(new Date(), 'yyyy-MM-dd');
-  let changelog = `# ${version} (${today}) \n`;
+  let changelog = `# ${versionTitle} (${today}) \n`;
 
-  changelog += generateChangelogSection('New', newEntries);
-  changelog += generateChangelogSection('Changed', changedEntries);
-  changelog += generateChangelogSection('Fixed', fixedEntries);
+  let hasChanges = false;
+
+  changelogSections.forEach(({ title, labels }) => {
+    const entries = getChangelogEntriesFromPullRequest(pullRequests, labels);
+
+    if (entries.length) {
+      hasChanges = true;
+      changelog += generateChangelogSection(title, entries);
+    }
+  });
+
+  if (!hasChanges) {
+    console.log('No changes found');
+    return '';
+  }
 
   return changelog;
 };
