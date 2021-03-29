@@ -1,22 +1,28 @@
-import dotenv from 'dotenv';
+import { getOrCreateConfig } from './cli/getConfig';
 import { generateChangelog } from './generateChangelog';
 import { getMergedPullRequests } from './getMergedPullRequests';
-
-dotenv.config();
-
-const config = {
-  ghAccessToken: process.env['GITHUB_ACCESS_TOKEN'] || '',
-};
+import chalk from 'chalk';
+import clear from 'clear';
+import figlet from 'figlet';
+import { Spinner } from 'clui';
 
 const run = async () => {
-  const pullRequests = await getMergedPullRequests({
-    accessToken: config.ghAccessToken,
-    repoOwner: 'dkoujelev',
-    repoName: 'changelog-generator',
-    versionLabel: '0.0.2',
-  });
+  clear();
 
-  console.log(generateChangelog(pullRequests, '0.0.2'));
+  const config = getOrCreateConfig();
+
+  console.log(chalk.green(figlet.textSync('Changelog generator', { horizontalLayout: 'full' })));
+
+  const spinner = new Spinner('Fetching pull requests');
+  spinner.start();
+
+  const pullRequests = await getMergedPullRequests(config);
+
+  spinner.stop();
+
+  console.log(chalk.greenBright('Pull requests fetched \n'));
+
+  console.log(generateChangelog(config, pullRequests));
 };
 
 run();
