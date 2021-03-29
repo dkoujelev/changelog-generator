@@ -16,7 +16,6 @@ const run = async () => {
     versionLabel: '0.0.2',
   });
 
-  // console.log(JSON.stringify(pullRequests, null, 2));
   console.log(generateChangelog(pullRequests, '0.0.2'));
 };
 
