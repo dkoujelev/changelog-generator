@@ -5,18 +5,25 @@ export type PullRequest = {
 
 export type Config = {
   githubAccessToken: string;
-  versionTitle: string;
   repos: ConfigRepo[];
   changelogSections: ConfigChangelogSection[];
+
+  versionTitle?: string;
+  changelogPath?: string;
 };
 
 export type ConfigRepo = {
   owner: string;
   name: string;
-  versionLabel: string;
+
+  versionLabel?: string;
+
+  includeLabels?: string[];
+  excludeLabels?: string[];
 };
 
 export type ConfigChangelogSection = {
   title: string;
-  labels: string[];
+  labels?: string[];
+  leftovers?: boolean;
 };

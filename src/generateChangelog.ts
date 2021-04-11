@@ -1,12 +1,17 @@
-import { PullRequest, Config } from './types';
+import { PullRequest, Config, ConfigChangelogSection } from './types';
 import { format } from 'date-fns';
 
-const getChangelogEntriesFromPullRequest = (pullRequests: PullRequest[], labels: string[]) => {
-  return pullRequests.filter(createLabelFilter(labels)).map(toChangelogEntry);
+const getChangelogEntries = (pullRequests: PullRequest[], labels: string[]) => {
+  return pullRequests.filter((pr) => labels.some((label) => pr.labels.includes(label))).map(toChangelogEntry);
 };
 
-const createLabelFilter = (filterLabels: string[]) => ({ labels }: PullRequest) => {
-  return filterLabels.some((filterLabel) => labels.includes(filterLabel));
+const getChangelogEntriesWithoutSectionLabels = (
+  pullRequests: PullRequest[],
+  changelogSections: ConfigChangelogSection[]
+) => {
+  const sectionLabels = changelogSections.flatMap(({ labels }) => labels || []);
+
+  return pullRequests.filter((pr) => !sectionLabels.some((label) => pr.labels.includes(label))).map(toChangelogEntry);
 };
 
 const toChangelogEntry = (pullRequest: PullRequest) => {
@@ -27,15 +32,17 @@ const generateChangelogSection = (label: string, entries: string[]) => {
 };
 
 export const generateChangelog = (config: Config, pullRequests: PullRequest[]): string => {
-  const { versionTitle, changelogSections } = config;
+  const { changelogSections, versionTitle } = config;
 
   const today = format(new Date(), 'yyyy-MM-dd');
   let changelog = `# ${versionTitle} (${today}) \n`;
 
   let hasChanges = false;
 
-  changelogSections.forEach(({ title, labels }) => {
-    const entries = getChangelogEntriesFromPullRequest(pullRequests, labels);
+  changelogSections.forEach(({ title, labels, leftovers }) => {
+    const entries = leftovers
+      ? getChangelogEntriesWithoutSectionLabels(pullRequests, changelogSections)
+      : getChangelogEntries(pullRequests, labels!);
 
     if (entries.length) {
       hasChanges = true;

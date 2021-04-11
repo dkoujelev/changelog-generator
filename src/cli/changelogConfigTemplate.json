@@ -1,20 +1,20 @@
 {
   "githubAccessToken": "",
 
-  "versionTitle": "",
-
   "repos": [
     {
       "owner": "",
       "name": "",
-      "versionLabel": ""
+
+      "includeLabels": [],
+      "excludeLabels": []
     }
   ],
 
   "changelogSections": [
     {
       "title": "New",
-      "labels": ["new", "New", "enhancement", "Enhancement"]
+      "labels": ["new", "New"]
     },
 
     {
@@ -25,6 +25,13 @@
     {
       "title": "Fixed",
       "labels": ["fixed", "Fixed"]
+    },
+
+    {
+      "title": "Other",
+      "leftovers": true
     }
-  ]
+  ],
+
+  "changelogPath": "./CHANGELOG.md"
 }

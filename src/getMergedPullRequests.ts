@@ -82,7 +82,23 @@ const getMergedPullRequestsForRepo: GetMergedPullRequestsForRepo = async (github
     }
   }
 
-  return prResponses.flatMap(({ nodes }) => nodes);
+  const { excludeLabels, includeLabels } = repo;
+
+  return prResponses
+    .flatMap(({ nodes }) => nodes)
+    .filter(({ labels: labelsResponse }) => {
+      const labels = labelsResponse.nodes.map(({ name }) => name);
+
+      if (excludeLabels?.some((excludeLabel) => labels.includes(excludeLabel))) {
+        return false;
+      }
+
+      if (includeLabels?.some((includeLabel) => !labels.includes(includeLabel))) {
+        return false;
+      }
+
+      return true;
+    });
 };
 
 type GetMergedPullRequests = (config: Config) => Promise<PullRequest[]>;
