@@ -1,4 +1,6 @@
 export type PullRequest = {
+  url: string;
+  number: number;
   title: string;
   labels: string[];
 };
@@ -10,6 +12,7 @@ export type Config = {
 
   versionTitle?: string;
   changelogPath?: string;
+  jiraUrl?: string;
 };
 
 export type ConfigRepo = {

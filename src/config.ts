@@ -1,4 +1,4 @@
-import { Config } from '../types';
+import { Config } from './types';
 import path from 'path';
 import fs from 'fs';
 import configTemplate from './changelogConfigTemplate.json';
