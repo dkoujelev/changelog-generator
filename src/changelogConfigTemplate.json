@@ -33,5 +33,6 @@
     }
   ],
 
-  "changelogPath": "./CHANGELOG.md"
+  "changelogPath": "./CHANGELOG.md",
+  "jiraUrl": ""
 }

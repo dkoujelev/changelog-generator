@@ -11,6 +11,8 @@ type PullRequestsResponse = {
 };
 
 type PullRequestResponseNode = {
+  url: string;
+  number: number;
   title: string;
   mergedAt: string;
   labels: { nodes: { name: string }[] };
@@ -36,6 +38,8 @@ const fetchMergedPullRequests: FetchMergedPullRequests = async (githubAccessToke
       repository(owner: "${owner}", name: "${name}") {
         pullRequests(first: 100, states: [MERGED] ${labels} ${after}) {
           nodes {
+            url
+            number
             title
             mergedAt
             labels(first: 10) {
@@ -113,8 +117,10 @@ export const getMergedPullRequests: GetMergedPullRequests = async (config) => {
   const mergedPullRequests: PullRequest[] = fetchedPullRequests
     .flatMap((pr) => pr)
     .sort(byMergeDate)
-    .flatMap(({ title, labels }) => {
+    .flatMap(({ url, number, title, labels }) => {
       return {
+        url,
+        number,
         title,
         labels: labels.nodes.map(({ name }) => name),
       };
