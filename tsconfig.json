@@ -5,7 +5,7 @@
     "target": "ES3",
     "moduleResolution": "node",
     "sourceMap": true,
-    "outDir": "build",
+    "outDir": "bin",
     "strict": true,
     "lib": ["ESNext"],
     "resolveJsonModule": true
