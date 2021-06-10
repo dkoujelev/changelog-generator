@@ -15,17 +15,15 @@ export const getConfig = (): Config | null => {
   return JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 };
 
-export const createConfigFile = (): void => {
+export const createConfigFile = () => {
   const config: Config = configTemplate;
 
-  fs.appendFile('changelogConfig.json', JSON.stringify(config, null, 2), (err) => {
-    if (err) {
-      console.error(chalk.red('Failed to create config file'));
-      console.error(err);
-      process.exit(1);
-    } else {
-      console.log(chalk.blueBright('Created config file.'));
-      console.log(chalk.blue('Please update the config file and run the command again.'));
-    }
-  });
+  try {
+    fs.appendFileSync('changelogConfig.json', JSON.stringify(config, null, 2));
+    console.log(chalk.blueBright('Created config file.'));
+    console.log(chalk.blue('Please update the config file and run the command again.'));
+  } catch (err) {
+    console.error(chalk.red('Failed to create config file'));
+    console.error(err);
+  }
 };

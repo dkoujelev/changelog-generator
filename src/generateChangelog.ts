@@ -25,7 +25,11 @@ const jiraIdRegex = /\[DEV-[0-9]{3,5}\]/g;
 const toChangelogEntry = ({ title, number, url }: PullRequest, jiraUrl?: string) => {
   const titleText = jiraUrl ? title.replace(jiraIdRegex, '') : title;
 
-  return `- ${titleText} ${markdownUrl(`(#${number})`, url)} ${jiraTasks(title, jiraUrl)}`;
+  return toSafeMarkdownString(`- ${titleText} ${markdownUrl(`(#${number})`, url)} ${jiraTasks(title, jiraUrl)}`);
+};
+
+const toSafeMarkdownString = (text: string) => {
+  return text.replace(/</g, '\\<');
 };
 
 const jiraTasks = (title: string, jiraUrl?: string) => {
@@ -35,7 +39,11 @@ const jiraTasks = (title: string, jiraUrl?: string) => {
 
   const jiraIds = title.match(jiraIdRegex);
 
-  return jiraIds?.map((id) => markdownUrl(id, path.join(jiraUrl, id))).join(' ') ?? '';
+  return jiraIds?.map((id) => markdownUrl(id, path.join(jiraUrl, toJiraId(id)))).join(' ') ?? '';
+};
+
+const toJiraId = (id: string) => {
+  return id.replace(/\[|\]/g, '');
 };
 
 const markdownUrl = (text: string | number, url: string) => {

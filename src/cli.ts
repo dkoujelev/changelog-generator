@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { generateChangelog } from './generateChangelog';
 import { getMergedPullRequests } from './getMergedPullRequests';
 import { Config } from './types';

@@ -1,11 +1,18 @@
 {
   "name": "changelog-generator",
   "version": "0.0.2",
-  "main": "index.js",
+  "main": "cli.js",
   "repository": "https://github.com/dkoujelev/changelog-generator.git",
   "author": "dkoujelev <dkoujelev97@gmail.com>",
   "license": "MIT",
   "private": true,
+  "scripts": {
+    "generate-changelog": "node bin/cli.js",
+    "build": "tsc"
+  },
+  "bin": {
+    "generate-changelog": "./bin/cli.js"
+  },
   "dependencies": {
     "@octokit/graphql": "^4.6.1",
     "chalk": "^4.1.0",
@@ -15,9 +22,6 @@
     "dotenv": "^8.2.0",
     "figlet": "^1.5.0",
     "inquirer": "^8.0.0"
-  },
-  "scripts": {
-    "generate-changelog": "tsc && node build/index.js"
   },
   "devDependencies": {
     "@types/clear": "^0.1.1",
